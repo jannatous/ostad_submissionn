@@ -1,33 +1,44 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+
+
+void main(){
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: ItemSelectionScreen(),
+      home: MyHomePage(),
     );
   }
 }
 
-class ItemSelectionScreen extends StatefulWidget {
+
+
+class MyHomePage extends StatefulWidget {
   @override
-  _ItemSelectionScreenState createState() => _ItemSelectionScreenState();
+  _MyHomePage createState() => _MyHomePage();
 }
 
-class _ItemSelectionScreenState extends State<ItemSelectionScreen> {
-  List<Item> items = [
-    Item("Item 1", false),
-    Item("Item 2", false),
-    Item("Item 3", false),
-    Item("Item 4", false),
-    Item("Item 5", false),
-  ];
+class _MyHomePage extends State<MyHomePage> {
 
-  int selectedCount = 0;
+  List<String> items = ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'];
+  List<bool> isSelected = List.generate(5, (index) => false);
+
+  int selectedCount() {
+    int count = 0;
+    for (bool selected in isSelected) {
+      if (selected) {
+        count++;
+      }
+    }
+    return count;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,42 +50,29 @@ class _ItemSelectionScreenState extends State<ItemSelectionScreen> {
         itemCount: items.length,
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(items[index].name),
-            tileColor: items[index].isSelected ? Colors.blue : null,
+            title: Text(items[index]),
             onTap: () {
-              setState(() {
-                items[index].isSelected = !items[index].isSelected;
-                if (items[index].isSelected) {
-                  selectedCount++;
-                } else {
-                  selectedCount--;
-                }
-              });
+              ColorChange(index);
             },
+            tileColor: isSelected[index] ? Colors.blue : null,
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          int selectedItemCount = selectedCount();
           showDialog(
             context: context,
             builder: (context) {
               return AlertDialog(
                 title: Text('Selected Items'),
-                content: Column(
-                  children: [
-                    for (var item in items)
-                      if (item.isSelected) Text(item.name),
-                    SizedBox(height: 16),
-                    Text('Number of selected items: $selectedCount'),
-                  ],
-                ),
+                content: Text('Number of Selected items: $selectedItemCount'),
                 actions: [
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    child: Text('OK'),
+                    child: Text('Close'),
                   ),
                 ],
               );
@@ -85,11 +83,10 @@ class _ItemSelectionScreenState extends State<ItemSelectionScreen> {
       ),
     );
   }
-}
 
-class Item {
-  final String name;
-  bool isSelected;
-
-  Item(this.name, this.isSelected);
+  void ColorChange(int index) {
+    setState(() {
+      isSelected[index] = !isSelected[index];
+    });
+  }
 }
